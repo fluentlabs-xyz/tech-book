@@ -1,0 +1,7 @@
+# Composability
+
+At the lowest level Fluent L2 is a state tree that stores information about accounts and an execution runtime. Since we have only one account representation then we must adapt our account structure to all VMs we support. All EE account structure might be different, to solve this problem we use so-called Compatibility Contracts. These contracts are required to simulate different environments, including EVM, SMV, and etc.
+
+For example, EVM has instructions to interact with storage that are used to store information about modified cells inside the sub trie of each account. We don’t support nested tries so we need to map EVM’s storage layout to our storage layout. The same can happen with obtaining context specific information including block or tx details, like coinbase or transaction signer.
+
+All execution environments (EVM, SVM, etc) use only different transaction and block structure, but also cryptography and address format. It brings the biggest problem into our Compatibility Contracts model because these EEs use different ways to compute paths inside trie. It means that all these chains have different storage layouts, different ways to store bytecode and execute it.
