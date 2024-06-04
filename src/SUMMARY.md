@@ -7,7 +7,7 @@
     - [Compatibility contracts](./architecture/composability/compatability-contracts.md)
     - [Address format](./architecture/composability/address-format.md)
     - [Token transfer](./architecture/composability/token-transfer.md)
-- [Fluentbase](./fluentbase/overview.md)
+- [Fluentbase](./fluentbase/index.md)
   - [Codec]()
   - [Core]()
   - [Genesis]()
@@ -15,5 +15,7 @@
   - [SDK]()
   - [Types]()
   - [JZKT]()
-- [rWASM](./rwasm/overview.md)
+- [rWASM](./rwasm/index.md)
+  - [Motivation](./rwasm/motivation.md)
+  - [Technology](./rwasm/technology.md)
 
