@@ -43,54 +43,123 @@ We have implementation of this, but it's not good enough, and we're planning to 
 
 ### Memory section
 
-### Function sections
+WASM has memory and data sections.
+Memory section is used to define memory bounds (lower and upper limits).
+Data sections can be active/passive and are used to define data to be mapped inside data.
+Comparing to WASM we remove memory section, modify corresponding instruction logic and merge all data sections together.
 
-### Element section
+Here is an example of WAT file that initializes memory with min/max memory bounds (default allocated memory is 1 page and max possible allocated pages is 2):
+```wat
+(module
+  (memory 1 2)
+)
+```
 
+To support this we inject `memory.grow` instruction into entrypoint that inits default memory and also inject special preamble into all `memory.grow` instruction to do upper bound checks.
 
+Here is an example of resulting entrypoint injection:
+```wat
+(module
+  (func $__entrypoint
+    i32.const $_init_pages
+    memory.init
+    drop)
+)
+```
 
-## Function order based on the position
+According to the WASM standards, memory overflow causes `u32::MAX` on the stack.
+For upper bound checks we can do a memory overflow check using `memory.size` opcode.
+Here is an example of such injection:
+```wat
+(module
+  (func $_func_uses_memory_grow
+    (block
+      local.get 1
+      memory.size
+      i32.add
+      i32.const $_max_pages
+      i32.gts
+      drop
+      i32.const 4294967295
+      br 0
+      memory.grow)
+  )
+)
+```
 
-There is no need to store information about each function inside WASM binary, like function section and code section.
-Instead of can say that all bytecode is presented in a flat structure, and we store all functions as one function.
-To achieve this we remove all `CallInternal` related opcodes and replace them with breaks.
-To simulate function return we use new instruction `BrIndirect` that reads IP from the stack and jumps.
-It means that `Return` opcode is always used only for execution termination since there is only one function.
+These injections fully matches WASM standards and this is how we can support official WASM memory constraint checks for memory section.
 
-### Function order and internal calls
+For data section it's a bit more complicated because we have to support 3 different data section types:
+- `active` - has a pre-defined compile-time offset
+- `passive` - can be initialized dynamically in runtime
 
-For example, let's say we have two internal functions inside function and code sections.
-Let it be `foo` and `bar` function.
-Each internal function has position in the code section like a binary offset.
-Since we know that all functions are ordered and one function code can't collide with another then we can sort all functions and replace function index with the position in the bytecode.
-Let's say function `foo` has index 0 and position 120. Then we replace `CallInternal(0)` with `CallInternal(120)`.
-It makes much easier to prove PC and there is no need to parse function and code sections for offset matching.
+To solve this problem we merge all sections together and if memory active then we inits it inside entrypoint with re-mapped offsets otherwise just remember offset in a special mapping (we need this to adjust passive segments when user call `memory.init` manually). 
 
-### Function local variables
+Here is an example of entrypoint injection for active data segment:
+```wat
+(module
+  (func $__entrypoint
+    i32.const $_relative_offset
+    i64.const $_data_offset
+    i64.const $_data_length // or u64::MAX in case of overflow
+    memory.init 0
+    data.drop $segment_index+1
+  )
+)
+```
 
-Each function might have local variables.
-In the reduced binary we don't store type mappings, so we need to avoid using local variables inside functions.
-To fix this problem we declare that each function has zero local variables and replace function init with `i32.const 0` opcodes.
+We need to do a final trick with data segment drop, because according to WASM standards once segment is initialized then it must be entirely removed from memory.
+To simulate the same behaviour we use 0 segment as a default and store special data segments flags to know what segment is still alive. 
 
-### Global variables
+For passive data segments logic is almost the same, but we must recalculate data segment offsets on flight.
 
-Global variables init we inject inside start section of the binary
+```wat
+(module
+  (func $_func_uses_memory_init
+    // adjust length
+    (block
+      local.get 1
+      local.get 3
+      i32.add
+      i32.const $_data_len
+      i32.gts
+      br_if_eqz 0
+      i32.const 4294967295 // an error
+      local.set 1
+    )
+    // adjust offset
+    i32.const $_data_offset
+    local.get 3
+    i32.add
+    local.set 2
+    // do init
+    memory.init $_segment_index+1
+  )
+)
+```
 
-## WebAssembly's problems and ways to solve them
+Provided injections upper are examples and can be different.
 
-Most complicated issues for WASM proofs relate to PC offset calculation.
-Here we're defining ways how to avoid such situations by applying binary modifications that help to keep WASM compatibility but let it have more efficient binary structure.
-Long story short we need to create flatten binary representation of WASM by keeping backward compatibility with instruction set.
+### Function sections (temporary)
 
-One thing we want to highlight is that WASM is designed to be validated before execution, it means that translation step goes right after validation and translation can't go through if original WASM binary is not valid that helps us to define next statements and assumptions.
-1. if WASM binary is valid then rWASM binary is valid too
-2. rWASM can't store not possible instruction inside it's binary representation
-3.
+This section is temporary and is used to store information about functions length.
+We're planning to remove this section once we move entrypoint function into the beginning of the module.
 
-### Type section
+We can't do this right now, because removing functions require a lot of refactoring and modifications inside out codebase:
+1. Replace all functions with breaks (like `br` instructions)
+2. Remove stack call and use indirect breaks or tables
 
-Creating proof for type mappings is quite expensive because you need to create a lookup table to store information about each parsed binary type
+We're planning to migrate to the register-based VM.
 
-### Global variables
-### Function indices
-### Memory section
+### Element section (temporary)
+
+This section uses the same translation logic as memory/data sections.
+The only different is that it operates with tables and elements instead of memory and data.
+
+Element section is also temporary.
+We don't have to keep this section because we can replace it with memory operations.
+It can reduce number of RW ops and size of our circuits.
+The biggest challenge is how to manage memory securely in this case and avoid mixing system and user memory spaces.
+We don't want to go with custom WASM compilation target and want to support original WASM binaries (now matter how they compiled).
+
+This is still under research.
