@@ -1,10 +1,10 @@
 # Motivation
 
 WebAssembly (WASM) is an interpreted language and binary format for Web2 (usually) developers.
-Our approach describes how to let Web2 developers to be transparently added into Web3 world, but it's a bit challenging.
-We like WASM comparing to RISC-V or other binary formats because its well-known and mass-adopted standard that developers like and support.
-Also, WASM has self-described binary format (including memory structure, type mapping and the rest) comparing to RISC-V/AMD/Intel binary formats that require some binary-wrappers like EXE or ELF.
-But it doesn't mean that WASM is optimal, it still has some tricky non ZK friendly structures that we'd like to avoid to prove.
+Our approach describes how to let Web2 developers to be transparently added into Web3 world, although it presents some challenges.
+We prefer WASM comparing to RISC-V or other binary formats due to its well-known, widely adopted standard that developers appreciate and support.
+Additionally, WASM includes a self-described binary format (covering memory structure, type mapping, and more) compared to RISC-V/AMD/Intel binary formats, which require some binary-wrappers like EXE or ELF.
+However, it does not mean that WASM is optimal, it still has some tricky non-ZK friendly structures that we would like to avoid to prove.
 This is why we need rWASM.
 
 rWASM (Reduced WebAssembly) is a special-modified binary IR (intermediary representation) of WASMi execution.
