@@ -5,8 +5,8 @@ One of the biggest challenges is address format, since it's used to compute path
 |  Chain | Address format                     | Curve | Size |
 | ------ |------------------------------------| ----- | ---- |
 | EVM    | keccak256(uncompressed(G^x)[1:])[12..] | secp256k1 | 160 bits |
-| SVM    | G^sha512(x)[..32]                  | ed25519 | 256 bits |
-| FVM    | sha256(uncompressed(G^x))          | secp256k1 | 256 bits |
+| SVM    | G^SHA512(x)[..32]                  | ed25519 | 256 bits |
+| FVM    | SHA256(uncompressed(G^x))          | secp256k1 | 256 bits |
 
 Table 1. different blockchains use different address schemes and elliptic curves
 
