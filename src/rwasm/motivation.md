@@ -9,6 +9,6 @@ This is why we need rWASM.
 
 rWASM (Reduced WebAssembly) is a special-modified binary IR (intermediary representation) of WASMi execution.
 Literally rWASM is 99% compatible with WASM original bytecode and instruction set, but with a modified binary structure w/o affecting opcode behaviour.
-The biggest WASM problem is relative offsets for type mappings, function mappings and block/loop statements (everything that relates to PC offsets).
-rWASM binary format has more flatten structure w/o relative offsets and rWASM doesn't require type mapping validator and must be executed as is.
-Such flatten structure makes easier to proof correctness of each opcode execution and put several verification steps on developer's hands.
+The main issue with WASM is its use of relative offsets for type mappings, function mappings and block/loop statements (everything that relates to PC offsets).
+rWASM binary format has more flatten structure w/o relative offsets and rWASM does not require type mapping validator, allowing it to be executed as is.
+Such flatten structure simplifies the process of proving the correctness of each opcode execution and places several verification steps in the hands of developer.
