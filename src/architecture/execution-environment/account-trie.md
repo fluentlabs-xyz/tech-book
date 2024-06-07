@@ -52,13 +52,6 @@ These are all the operations that our trie supports:
 
 #### Account destruction problem
 
-The biggest problem with journals in EVM is handling nested calls and supported account destruction.
-EVM uses dirty storage and journals to roll back all changes and revert to the previous state.
-The biggest challenge here is the `SELFDESTRUCT` opcode or account destruction.
-There are many corner cases that can occur during account destruction.
-Once an account is destructed (no matter at what stage it exists), all state changes must be reverted, including storage.
+The biggest problem with journals in EVM is handling nested calls and supporting account destruction. EVM uses dirty storage and journals to roll back all changes and revert to the previous state. The biggest challenge here is the SELFDESTRUCT opcode or account destruction. Many corner cases can occur during account destruction. Once an account is destructed (no matter at what stage it exists), all state changes must be reverted, including storage.
 
-Since EVM uses nested Merkle tries to represent storage for each contract, we can't store all journal logs inside a flat, single-dimensional list because, in EVM, you can roll back one of the nested calls.
-We solve this by splitting the account trie and storage trie into two separate structures.
-We can do this because Fluent is strictly post-CANCUN, and there is no state removal for existing accounts.
-There is still an issue with newly created accounts, but we're working on a solution.
+Since EVM uses nested Merkle tries to represent storage for each contract, storing all journal logs inside a flat, single-dimensional list is not feasible because, in EVM, it is possible to roll back one of the nested calls. This is resolved by splitting the account trie and storage trie into two separate structures. This approach is possible because Fluent is strictly post-CANCUN, and there is no state removal for existing accounts. There is still an issue with newly created accounts, but a solution is being developed.
