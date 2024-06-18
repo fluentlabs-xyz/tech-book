@@ -1,17 +1,7 @@
 # Execution Environment
 
-Fluent EE is designed to be universal since it's targeted to support different VMs (virtual machines) and EEs (execution environments).
-It's achieved by having rWASM virtual machine used to execute and simulate different EE inside.
-Using this approach Fluent translates all applications into one execution language and adapts all these EEs to use the same state trie.
-By having the same state, trie applications can do interoperability with each other.
+Fluent EE is designed to be universal, targeting support for various virtual machines (VMs) and execution environments (EEs). This universality is achieved through the rWASM virtual machine, which executes and simulates different EEs. By utilizing rWASM, Fluent translates all applications into a single execution language, allowing different EEs to share the same state trie. This shared state trie enables applications to interoperate seamlessly.
 
-The core of Fluent is a state trie.
-Fluent supports its own EE, but also emulates other EEs like EVM or SVM.
-Its achieved using Compatibility Contracts (CC) that is used to simulate functions that are required by other VMs.
-There are a lot of challenges in sharing the same account trie between different EE, we solve it using CC.
+The core of Fluent is a state trie. Fluent not only supports its own EE but also emulates other EEs such as the Ethereum Virtual Machine (EVM) and the Solana Virtual Machine (SVM). This emulation is accomplished using Compatibility Contracts (CC), which simulate the functions required by other VMs. Sharing the same account trie among different EEs poses significant challenges, but Fluent overcomes these by leveraging CCs.
 
-For example, EVM,
-SVM and other EEs have a balance instruction that returns a balance representation according to their specs.
-It varies based on endianness, arithmetic size and many other parameters.
-To solve this, every CC provides a function for fetching balance and maps it into EEs balance format
-(like 256-bit BE format in EVM).
+For instance, EVM, SVM, and other EEs have balance instructions that return a balance representation according to their specific requirements. These requirements vary based on factors like endianness, arithmetic size, and other parameters. To address this, each CC provides a function to fetch the balance and map it into the appropriate format for the respective EE, such as the 256-bit big-endian format used in EVM.

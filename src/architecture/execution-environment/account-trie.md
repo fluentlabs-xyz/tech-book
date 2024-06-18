@@ -28,15 +28,14 @@ Where:
 
 ### Trie
 
-For the trie structure, we use SMBT (Sparse Merkle Binary Trie), which is a fork of ZkTrie originally developed and maintained by [Scroll](https://docs.scroll.io/en/technology/sequencer/zktrie/).
-Every account operation technically modifies an account trie, but since transactions or nested calls can be reverted, we can't modify the trie until we are fully sure that the operation is non-revertible.
-Journals are the easiest way to achieve this.
+For the trie structure, SMBT (Sparse Merkle Binary Trie) is used, which is a fork of ZkTrie originally developed and maintained by [Scroll](https://docs.scroll.io/en/technology/sequencer/zktrie/).
 
-Fluent uses a simplified version of journals.
-We use our own wrapper over SMBT that enables journaling for every trie operation.
-Instead of managing all journals inside memory, we mark trie operations with an additional flag.
-This flag is used to mark leaves that are not involved in the final state root computation.
-Using this approach, by adding only one additional column to the account trie gadget, we can significantly reduce the number of memory and stack operations, which are much more expensive.
+Every account operation technically modifies an account trie, but since transactions or nested calls can be reverted, the trie cannot be modified until it is fully confirmed that the operation is non-revertible. Journals are the easiest way to achieve this.
+
+Fluent uses a simplified version of journals with its own wrapper over SMBT that enables journaling for every trie operation. Instead of managing all journals inside memory, trie operations are marked with an additional flag. This flag is used to mark leaves that are not involved in the final state root computation. Using this approach, by adding only one additional column to the account trie gadget, the number of memory and stack operations, which are much more expensive, can be significantly reduced.
+
+
+
 
 These are all the operations that our trie supports:
 - `checkpoint` - creates a new checkpoint state that is a position inside the journal. Once a checkpoint is created, the developer can roll back some changes to this checkpoint state.
@@ -53,13 +52,6 @@ These are all the operations that our trie supports:
 
 #### Account destruction problem
 
-The biggest problem with journals in EVM is handling nested calls and supported account destruction.
-EVM uses dirty storage and journals to roll back all changes and revert to the previous state.
-The biggest challenge here is the `SELFDESTRUCT` opcode or account destruction.
-There are many corner cases that can occur during account destruction.
-Once an account is destructed (no matter at what stage it exists), all state changes must be reverted, including storage.
+The biggest problem with journals in EVM is handling nested calls and supporting account destruction. EVM uses dirty storage and journals to roll back all changes and revert to the previous state. The biggest challenge here is the SELFDESTRUCT opcode or account destruction. Many corner cases can occur during account destruction. Once an account is destructed (no matter at what stage it exists), all state changes must be reverted, including storage.
 
-Since EVM uses nested Merkle tries to represent storage for each contract, we can't store all journal logs inside a flat, single-dimensional list because, in EVM, you can roll back one of the nested calls.
-We solve this by splitting the account trie and storage trie into two separate structures.
-We can do this because Fluent is strictly post-CANCUN, and there is no state removal for existing accounts.
-There is still an issue with newly created accounts, but we're working on a solution.
+Since EVM uses nested Merkle tries to represent storage for each contract, storing all journal logs inside a flat, single-dimensional list is not feasible because, in EVM, it is possible to roll back one of the nested calls. This is resolved by splitting the account trie and storage trie into two separate structures. This approach is possible because Fluent is strictly post-CANCUN, and there is no state removal for existing accounts. There is still an issue with newly created accounts, but a solution is being developed.
