@@ -6,6 +6,7 @@
   - [Composability](./architecture/composability.md)
     - [Compatibility contracts](./architecture/composability/compatability-contracts.md)
     - [Address format](./architecture/composability/address-format.md)
+    - [Storage layout](./architecture/composability/storage-layout.md)
     - [Token transfer](./architecture/composability/token-transfer.md)
 - [Fluentbase](./fluentbase/index.md)
   - [Codec]()
