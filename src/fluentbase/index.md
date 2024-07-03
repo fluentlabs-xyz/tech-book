@@ -51,7 +51,7 @@ RUST_MIN_STACK=20000000 cargo test --no-fail-fast
 
 ## Examples
 
-Fluentbase can be used to develop various types of applications, mostly using the same interface.
+Fluentbase SDK can be used to develop various types of applications, mostly using the same interface.
 Here is a simple application developed using Fluentbase:
 
 ```rust
