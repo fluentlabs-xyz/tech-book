@@ -1,6 +1,17 @@
-# Token transfer
+# Token Transfer
 
-There are several solutions of this problem:
+There are several solutions to the problem of token transfer between different blockchain environments:
 
-- Create a wrapped token projection of both ERC20/SPL. We can do interop hooks to handle all ERC20/SPL events and trigger corresponding events in a right EVM/SVM env to simulate the same behavior. The biggest negative factor is that we need to support cartesian products for all VMs we have that increases development and support complexity and removes flexibility, plus there is no guarantee that there are no non-simulatable features in one of these environments.
-- Create an automatic wrapped token for ERC20 and SPL with helper functions like `wrap`, `unwrap`, `wrapAndCall`, `wrapAndCallAndUnwrap` to help users easily interact with contracts in ETH and SOL systems. In this case users can transfer their funds from SPL to ERC20 standard and vice versa and interact with both contract systems.
+1. **Wrapped Token Projection**:
+    - Create a wrapped token projection for both ERC20 and SPL tokens.
+    - Use interoperability hooks to handle all ERC20/SPL events and trigger corresponding events in the appropriate EVM/SVM environment to simulate the same behavior.
+    - **Drawbacks**:
+        - This approach requires supporting Cartesian products for all VMs, which increases development and support complexity.
+        - It reduces flexibility, and there is no guarantee that there are no non-simulatable features in one of these environments.
+
+2. **Automatic Wrapped Tokens with Helper Functions**:
+    - Create automatic wrapped tokens for ERC20 and SPL with helper functions such as `wrap`, `unwrap`, `wrapAndCall`, and `wrapAndCallAndUnwrap`.
+    - These functions help users interact with contracts in both Ethereum (ETH) and Solana (SOL) systems.
+    - **Benefits**:
+        - Users can transfer their funds between SPL and ERC20 standards.
+        - Enables interaction with both contract systems, simplifying the process for users.
