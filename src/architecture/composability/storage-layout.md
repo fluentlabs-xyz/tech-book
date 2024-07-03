@@ -1,6 +1,6 @@
 # Storage Layout
 
-We have two types of storage:
+We have three types of storage:
 
 1. **Account Trie Storage**: For account information, including code hashes, balances, nonces, etc.
 2. **Contract Storage**: Random key/value storage inside the account trie.
