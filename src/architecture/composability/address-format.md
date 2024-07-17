@@ -38,7 +38,7 @@ The key is to use the smallest address format to ensure compatibility.
 The smallest address format today is the 20-byte format used by Bitcoin (RIPEMD-160) and Ethereum (keccak256 cut).
 
 ```
-path(addr) = G1lpad32(addr)[12..]
+path(addr) = G1*lpad32(addr)[12..]
 ```
 
 Using this new path function, we can achieve address translation across most chains for cross-account transfers, even with different elliptic curves and hashing. This function can be calculated on-chain using WASM.

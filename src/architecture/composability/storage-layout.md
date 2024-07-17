@@ -43,3 +43,4 @@ we assign a unique 1-byte identifier to each EE and replace the first byte of th
 | SolanaVM | 0x53 ('S')     |
 | FuelVM   | 0x46 ('F')     |
 | MoveVM   | 0x4d ('M')     |
+| Custom   | 0xff           |

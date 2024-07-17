@@ -19,7 +19,7 @@ making no changes to WASMi's IR and only modifying the binary representation to 
 7. **Eliminated Type Mapping**: Type mapping is no longer necessary as the code is fully validated.
 8. **Special Entrypoint Function**: A unique entry point function encompasses all segments.
 
-The new binary representation ensures a 100% valid WASMi runtime module from the binary.
+The new binary representation ensures a fully equivalently compatible WASMi runtime module from the binary.
 Some features are no longer supported but are not required by the rWASM runtime:
 
 - Module imports, global variables, and memory imports

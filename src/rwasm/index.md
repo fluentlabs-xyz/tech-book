@@ -2,7 +2,7 @@
 
 rWASM (reduced WebAssembly) is an EIP-3540 compatible binary intermediary representation (IR) of WASM (WebAssembly).
 It is designed
-to simplify the execution process of WASM binaries while maintaining 100% compatibility with original WASM features.
+to simplify the execution process of WASM binaries while maintaining 99% compatibility with original WASM features.
 
 ## Key Features
 
