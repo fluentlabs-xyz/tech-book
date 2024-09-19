@@ -42,6 +42,7 @@ This setup ensures that all balances of the isolated EE coexist in the same acco
 and can interact with external EEs only through specific system calls.
 
 ### Partially Compatible EE
+
 For **Partially Compatible Execution Environments (EE)**,
 the same address format and derivation standards as used by Ethereum must be followed.
 The address derivation is as follows:

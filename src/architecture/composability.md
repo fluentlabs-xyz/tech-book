@@ -64,13 +64,32 @@ interface IAmFullyCompatibleButIsolatedEE {
 > Implementing contracts are expected to support `Multicall`,
 > which allows developers to combine deposit and withdrawal operations into a chain of actions.
 
-### Advantages:
+#### Advantages:
 - **High Compatibility:** Fully or almost fully compatible with the original EE.
 - **Seamless Integration:** Utilizes compatible addresses and cryptography, maintains the same transaction format, enabling the use of original tools, wallets, and explorers.
 - **Cost-Effective Development:** Low development costs if the EE is `no_std` ready and can be compiled into WASM.
 - **RPC Support:** Achieve full RPC support through a special RPC bridge or adapter.
 
-### Disadvantages:
+#### Disadvantages:
 - **Gas Management Challenges:** Achieving full compatibility is hard due to gas management limitations, though partial compatibility is possible via account emulation.
 - **Interoperability Issues:** Emulated accounts cannot directly interact with external contracts, requiring withdrawals. Despite the instant withdrawal process that can be executed through multicall, it increases the execution cost.
 - **Emulation Overhead:** Certain functions introduce computation overhead due to discrepancies in state models or account and transaction structures. Running a VM inside VM can cause performance losses.
+
+### Partially Compatible & Interoperable EE
+
+To achieve partial compatibility,
+an execution environment (EE) must coexist within the same trie space as the default EVM+WASM.
+It should adhere to established standards, including address formatting and derivation strategies.
+This EE must not execute arbitrary account or state modifications,
+and can only manage basic Ethereum-compatible accounts.
+
+#### Advantages
+- **Native Interoperability:** Allows different Interoperable Execution Environments (EEs) to coexist within the same state space, fostering greater integration compared to the Isolated EE approach.
+- **Efficiency:** Enables the inclusion of new virtual machines (VMs) or EEs without stringent integration standards, enhancing overall efficiency.
+
+### Disadvantages
+- **Limitations:** Not all EEs can be integrated within this model due to inherent limitations and potential standard violations. This might necessitate the development of an additional migration toolkit, requiring developers to recompile or slightly modify their existing applications.
+
+For instance, **CosmWasm** can be integrated using both approaches.
+In an Isolated EE, the original address format can be maintained,
+while in an Interoperable EE, native composability is achievable.
