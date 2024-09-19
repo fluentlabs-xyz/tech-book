@@ -1,5 +1,7 @@
 # Compatibility Contracts
 
+> **WARNING:** This section may be outdated!
+
 Fluent is an L2 blockchain that supports the Web3 API, is fully compatible with EVM smart contracts, and allows developers to deploy both WASM and EVM apps simultaneously. Technically, we don’t support EVM contracts directly, but practically we do because, being WASM-based, it is sufficient to support only one VM and simulate the other using any high-level language like Rust, which can be compiled to WASM.
 
 To achieve EVM compatibility, we use so-called Compatibility Layers. A Compatibility Layer (CL) is a special smart contract developed using a WASM language. The difference between CL contracts and regular smart contracts is that the former has access to special low-level functions that can be used to manage balances, bytecodes, and the account trie.

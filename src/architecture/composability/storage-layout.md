@@ -1,5 +1,7 @@
 # Storage Layout
 
+> **WARNING:** This section may be outdated!
+
 We have three types of storage:
 
 1. **Account Trie Storage**: For account information, including code hashes, balances, nonces, etc.

@@ -1,5 +1,7 @@
 # Token Transfer
 
+> **WARNING:** This section may be outdated!
+
 There are several solutions to the problem of token transfer between different blockchain environments:
 
 1. **Wrapped Token Projection**:

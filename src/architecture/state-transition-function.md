@@ -35,3 +35,8 @@ There are three potential solutions to this problem:
 1. **Mandatory Access Lists**: In Ethereum, access lists are non-mandatory, and there is a penalty for cold slot reads. To address this, we could prohibit all state misses and revert such transactions. However, this might significantly affect user experience.
 2. **Interactive Transaction Pool**: This involves block inclusion commitments with a semi-interactive access list recalculation protocol. Transactions are included in the upcoming block, and users wait for inclusion. An interactive protocol updates access lists. This solution would require patching all Web3 eth-compatible browser extensions to support re-signing, which is unlikely.
 3. **Execution Interruption**: Interrupting the state transition execution to reload it with the correct execution state. This requires a resumable VM, like rWASM VM. However, state reload is a costly task in terms of execution and can impact overall block execution performance.
+
+## Solution
+
+**Fluent** employs **Execution Interruptions** for the handling and processing of all system calls.
+This process incurs additional overhead for sending and processing messages, resulting in extra gas charges for cold storage operations.
