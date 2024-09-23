@@ -143,3 +143,8 @@ pub fn _resume(
     fuel_ptr: *mut u64,
 ) -> i32;
 ```
+
+The `resume` function operates similarly to `exec`,
+but it requires an interrupted call ID and the interruption result (including return data and exit code).
+Interruption events may also occur during the resume process,
+requiring an execution loop capable of handling and correctly processing these interruptions.
