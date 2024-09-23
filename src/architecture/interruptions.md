@@ -28,63 +28,118 @@ The root function cannot be interrupted, but it is capable of handling interrupt
 
 ## System Bindings
 
-There are three main system bindings for managing context switching.
+The system bindings manage context switching in Fluent's interruption system. The following functions are provided:
+1. `_exec(..)` - execute bytecode
+2. `_resume(..)` - resume interrupted state
+3. `_exit(..)` - exit contract
+
+### Application Exit
+
+Terminates function execution with the specified exit code.
+The function is designed to exit from any smart contract or application.
+It immediately halts the contract execution and forwards all execution results,
+including the exit code and return data, to the caller contract.
 
 ```rust
-#[link(wasm_import_module = "fluentbase_v1preview")]
-extern "C" {
-    /// Terminates function execution with the specified exit code.
-    pub fn _exit(code: i32) -> !;
+pub fn _exit(code: i32) -> !;
+```
 
-    /// Executes a nested call with specified bytecode poseidon hash.
-    ///
-    /// # Parameters
-    /// - `hash32_ptr`: A pointer to a 254-bit poseidon hash of a contract to be called.
-    /// - `input_ptr`: A pointer to the input data (const u8).
-    /// - `input_len`: The length of the input data (u32).
-    /// - `fuel_ptr`: A mutable pointer to a fuel value (u64), consumed fuel is stored in the same
-    ///   pointer after execution.
-    /// - `state`: A state value (u32), used internally to maintain function state.
-    ///
-    /// Fuel ptr can be set to zero if you want to delegate all remaining gas.
-    /// In this case sender won't get consumed gas result.
-    ///
-    /// # Returns
-    /// - An `i32` value indicating the result of the execution,
-    /// negative or zero result stands for terminated execution,
-    /// but positive code stands for interrupted execution (works only for root execution level)
-    pub fn _exec(
-        hash32_ptr: *const u8,
-        input_ptr: *const u8,
-        input_len: u32,
-        fuel_ptr: *mut u64,
-        state: u32,
-    ) -> i32;
+**Constraints:**
+The exit code must always be a negative 32-bit integer.
+Supplying a positive exit code will result in a `NonNegativeExitCode` execution error.
+Positive exit codes indicate interrupted execution and are exclusive to the `_exec` or `_resume` functions.
 
-    /// Resumes the execution of a previously suspended function call.
-    ///
-    /// This function is designed to handle the resumption of a function call
-    /// that was previously paused.
-    /// It takes several parameters that provide
-    /// the necessary context and data for resuming the call.
-    ///
-    /// # Parameters
-    ///
-    /// * `call_id` - A unique identifier for the call that needs to be resumed.
-    /// * `return_data_ptr` - A pointer to the return data that needs to be passed back to the
-    ///   resuming function.
-    /// This should point to a byte array.
-    /// * `return_data_len` - The length of the return data in bytes.
-    /// * `exit_code` - An integer code that represents the exit status of the resuming function.
-    ///   Typically, this might be 0 for success or an error code for failure.
-    /// * `fuel_ptr` - A mutable pointer to a 64-bit unsigned integer representing the fuel need to
-    ///   be charged, also it puts a consumed fuel result into the same pointer
-    pub fn _resume(
-        call_id: u32,
-        return_data_ptr: *const u8,
-        return_data_len: u32,
-        exit_code: i32,
-        fuel_ptr: *mut u64,
-    ) -> i32;
-}
+![img.png](../../images/exit-flow.png)
+
+```sequence
+title Application Exit Flow
+
+activate root-STF
+root-STF->SmartContract:call smart contract
+activate SmartContract
+SmartContract-->root-STF:exit with code
+deactivate SmartContract
+deactivate root-STF
+```
+
+### Execute Bytecode or Send Interruption
+
+Execute a nested call with the specified bytecode poseidon hash.
+Or send an interruption to the parent execution call though context switching.
+If the depth level is greater than 0 then, does interruption otherwise execute bytecode.
+
+**Parameters**:
+
+- `hash32_ptr`: A pointer to a 254-bit poseidon hash of a contract to be called.
+- `input_ptr`: A pointer to the input data (const u8).
+- `input_len`: The length of the input data (u32).
+- `fuel_ptr`: A mutable pointer to a fuel value (u64). The consumed fuel is stored in the same pointer after execution.
+- `state`: A state value (u32), used internally to maintain function state.
+
+**Returns**:
+
+- An `i32` value indicating the result of the execution. A negative or zero result stands for terminated execution,
+  while a positive code stands for interrupted execution (works only for root execution level).
+
+```rust
+pub fn _exec(
+    hash32_ptr: *const u8,
+    input_ptr: *const u8,
+    input_len: u32,
+    fuel_ptr: *mut u64,
+    state: u32,
+) -> i32;
+```
+
+![img.png](../../images/exec-flow.png)
+
+```sequence
+title Application Exec/Resume Flow
+
+activate root-STF
+root-STF->A:call contract A\nusing _exec() func
+activate A
+A->A:call contract B using\n_exec() func
+A-->root-STF:interrupt execution\nwith saved context
+deactivate A
+activate B
+root-STF->B: call contract B using _exec() func
+B->B: call _exit func to\nhalt execution
+B-->root-STF: halt with exit code
+deactivate B
+root-STF->A: resume A call\nusing _resume() func
+activate A
+A->A: call _exit func to\nhalt execution
+A-->root-STF: exit with exit code
+deactivate A
+deactivate root-STF
+```
+
+#### Resume Execution
+
+Resumes the execution of a previously suspended function call.
+
+**Parameters**:
+
+- `call_id`: A unique identifier for the call that needs to be resumed.
+- `return_data_ptr`: A pointer to the return data that needs to be passed back to the resuming function. This should
+  point to a byte array.
+- `return_data_len`: The length of the return data in bytes.
+- `exit_code`: An integer code that represents the exit status of the resuming function. Typically, this might be 0 for
+  success or an error code for failure.
+- `fuel_ptr`: A mutable pointer to a 64-bit unsigned integer representing the fuel needed to be charged. The consumed
+  fuel result is also stored in the same pointer.
+
+**Returns**:
+
+- An `i32` value indicating the result of the resumption.
+
+```rust
+pub fn _resume(
+    call_id: u32,
+    return_data_ptr: *const u8,
+    return_data_len: u32,
+    exit_code: i32,
+    fuel_ptr: *mut u64,
+) -> i32;
 ```

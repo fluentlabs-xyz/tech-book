@@ -4,7 +4,7 @@ Fluentbase is a framework that provides an SDK and a proving system for Fluent S
 Developers can use this framework to create shared applications (smart contracts),
 dedicated applications, system precompile contracts, or custom STFs.
 
-> WARNING: Don't use in production!
+> **WARNING: Don't use in production!**
 >
 > *Fluentbase is currently under experimental development and remains a work in progress.*
 > *The bindings, methods,

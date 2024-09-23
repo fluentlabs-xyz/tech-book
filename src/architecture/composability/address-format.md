@@ -32,9 +32,11 @@ which employs the Ristretto curve.
 Consequently,
 native interoperability across these platforms is not feasible
 without altering blockchain address formats and cryptographic methods.
+
 ## Solution
 
 ### Fully Isolated EE
+
 For **Fully Isolated Execution Environments (EE)**, address projection (also known as account emulation) is employed.
 In this model,
 an account is stored within a special EE smart contract (or executor) responsible for managing all balance operations.
