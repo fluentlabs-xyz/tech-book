@@ -148,3 +148,64 @@ The `resume` function operates similarly to `exec`,
 but it requires an interrupted call ID and the interruption result (including return data and exit code).
 Interruption events may also occur during the resume process,
 requiring an execution loop capable of handling and correctly processing these interruptions.
+
+## System Calls
+
+System calls use the same approach as an interruption system.
+Since root-STF function is responsible for all state transitions,
+including cold/warm storage reads,
+then a syscall can be represented as an interruption to the special smart contract. 
+
+We use such special ephemeral smart contracts to access information that is located outside the smart contract.
+For example,
+in case of storage cache invalidation contract must request the newest info from root call
+instead of reading invalidated cache.
+Also, nested calls to other contracts require ACL checks that must be checked and verified by root-STF.
+
+Here is an example of what the system call looks like for Rust contracts.
+
+```rust
+fn syscall_storage_read<SDK: NativeAPI>(native_sdk: &mut SDK, slot: &U256) -> U256 {
+  // do a call to the root-STF to request some storage slot
+  let (_, exit_code) = native_sdk.exec(
+      &SYSCALL_ID_STORAGE_READ, // an unique storage read code hash
+      slot.as_le_slice(), // a requesting slice with data (aka call-input)
+      GAS_LIMIT_SYSCALL_STORAGE_READ, // a gas limit for this call (max threshold)
+      STATE_MAIN, // state of the call (must always be 0, except some special tricky cases)
+  );
+  // make sure returning result is zero (Ok)
+  assert_eq!(exit_code, 0);
+  // read output from the return data (storage slot value is always 32 bytes)
+  let mut output: [u8; 32] = [0u8; 32];
+  native_sdk.read_output(&mut output, 0);
+  // convert return data to the U256 value
+  U256::from_le_bytes(output)
+}
+```
+
+> For example, if smart contract **A** needs to send a message to smart contract **B**,
+> it can trigger a special system call interruption.
+> Upon interruption, the root-STF (State Transition Function) processes the interruption,
+> performs ACL (Access Control List) checks,
+> executes the target application, and then resumes the previous context with the appropriate exit code and return data.
+
+![img.png](../../images/storage-flow.png)
+
+```sequence
+title Storage Write/Read Syscall
+
+activate root-STF
+root-STF->A:call contract A\nusing _exec() func
+activate A
+A->A:call storage write/read\nusing _exec() func
+A-->root-STF:interrupt execution\nwith the saved context
+deactivate A
+activate root-STF
+root-STF->root-STF: request the slot specified\nfrom database
+deactivate root-STF
+root-STF->A: resume A call using _resume() func\nwith storage write/read return data
+activate A
+A-->root-STF: exit with exit code
+deactivate A
+deactivate root-STF
+```
