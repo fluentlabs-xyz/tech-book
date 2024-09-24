@@ -101,3 +101,43 @@ extern "C" {
     pub fn _debug_log(msg_ptr: *const u8, msg_len: u32);
 }
 ```
+
+For each system function, a unique identifier is assigned.
+During the rWASM translation, every function call is replaced with a `Call(SysCallIdx)` instruction.
+This approach significantly enhances the efficiency and simplicity of the proving process.
+
+```rust
+#[repr(u32)]
+#[allow(non_camel_case_types)]
+pub enum SysFuncIdx {
+    #[default]
+    UNKNOWN = 0x0000,
+
+    // crypto
+    KECCAK256 = 0x0101,
+    POSEIDON = 0x0102,
+    POSEIDON_HASH = 0x0103,
+    ECRECOVER = 0x0104,
+
+    // SYS host
+    EXIT = 0x0001,
+    STATE = 0x0002,
+    READ = 0x0003,
+    INPUT_SIZE = 0x0004,
+    WRITE = 0x0005,
+    OUTPUT_SIZE = 0x0006,
+    READ_OUTPUT = 0x0007,
+    EXEC = 0x0009,
+    RESUME = 0x000a,
+    FORWARD_OUTPUT = 0x000b,
+    CHARGE_FUEL = 0x000c,
+    FUEL = 0x000d,
+    READ_CONTEXT = 0x000e,
+
+    // preimage
+    PREIMAGE_SIZE = 0x070D,
+    PREIMAGE_COPY = 0x070E,
+
+    DEBUG_LOG = 0x0901,
+}
+```
