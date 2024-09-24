@@ -202,8 +202,8 @@ A-->root-STF:interrupt execution\nwith the saved context
 deactivate A
 activate root-STF
 root-STF->root-STF: request the slot specified\nfrom database
-deactivate root-STF
 root-STF->A: resume A call using _resume() func\nwith storage write/read return data
+deactivate root-STF
 activate A
 A-->root-STF: exit with exit code
 deactivate A

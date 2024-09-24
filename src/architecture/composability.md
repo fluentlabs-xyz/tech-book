@@ -93,3 +93,4 @@ and can only manage basic Ethereum-compatible accounts.
 For instance, **CosmWasm** can be integrated using both approaches.
 In an Isolated EE, the original address format can be maintained,
 while in an Interoperable EE, native composability is achievable.
+
