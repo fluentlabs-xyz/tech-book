@@ -56,6 +56,12 @@ interface IAmFullyCompatibleButIsolatedEE {
     
     // Withdraws an ERC20 token from the EE
     function withdrawERC20(bytes params, IERC20 token) external;
+
+    // Get non-claimed relayer fee    
+    function getRelayerFee(address relayer) external view returns (u256);
+    
+    // Claim unclaimed relayer fee
+    function claimRelayerFee(address relayer) external;
 }
 ```
 
