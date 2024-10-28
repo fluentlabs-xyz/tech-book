@@ -1,98 +1,75 @@
 # Architecture
 
-Fluent is a Layer 2 (L2) scaling solution designed to execute WebAssembly-based applications,
-commonly referred to as smart contracts.
-It enhances scalability and efficiency by committing state changes to the Ethereum L1 blockchain.
-This process involves compressing the state changes using ZK proofs, specifically SNARK(s).
+Fluent is an Ethereum Layer 2 (L2) rollup designed to natively execute EVM, SVM and Wasm-based programs.
+Fluent exists as a unified state machine,
+where all contracts can call each other, regardless of which VM they were originally built for.
 
-![Fluent Architecture](../images/fluent-arch.svg)
+As a rollup, Fluent supports scalable and efficient execution by committing state changes to Ethereum L1.
+This process involves compressing the state changes using zero-knowledge (zk) proofs, specifically SNARKs.
 
-*The image illustrates the base architecture of Fluent L2*
+<p align="center">
+   <img src="../images/fluent-arch.svg" alt=""/>
+   <br/>
+   <i>The base architecture of Fluent</i>
+</p>
 
-Fluent L2 operates on a modified version of Reth, using its own execution engine that replaces Revm.
+The Fluent operates on a modified version of [Reth](https://github.com/fluentlabs-xyz/fluent),
+using its own execution engine that replaces [Revm](https://github.com/fluentlabs-xyz/revm-rwasm).
 It maintains backward compatibility with most existing Ethereum standards, such as transaction and block structures.
-However, Fluent is not confined to Reth exclusively, as it boasts an independent execution runtime.
+However, Fluent is not confined to Reth exclusively, as it features an independent execution runtime.
 
 Furthermore,
 Fluent enables a fork-less runtime upgrade model
 by incorporating the most critical and upgradable runtime execution codebase within the genesis state.
 The only persistent element within the runtime is the transaction format.
 
-Additionally, Fluent is always post-Cancun and does not support any EIPs implemented before the Cancun fork.
+Additionally, Fluent is always post-Cancun compatible and does not support any EIPs implemented before the Cancun fork.
 Maintaining backward compatibility with all previous forks is unnecessary.
-The EVM runtime can be upgraded to support the most relevant EIP standards.
+The EVM runtime can be upgraded to retain compatibility with EVM.
 
-## Blended Execution
+[//]: # (## Blended Execution)
 
-The core of Fluent is founded on the Blended Execution approach.
-This concept is employed to create an intermediary representation (IR) for executable applications.
+[//]: # ()
+[//]: # (The core of Fluent is founded on Blended Execution.)
 
-Executable applications can encompass smart contracts,
-execution environment (EE) simulations, or state transition functions.
-More broadly, Blended Execution is used to define various types of state transitions.
+[//]: # (Blended execution enables native-level support for multiple VMs and EEs within a unified state machine.)
 
-For instance:
-- An EVM application specifies EVM opcode transitions.
-- A WASM application specifies WASM opcode transitions.
+[//]: # (This enables real-time composability between contracts)
 
-In essence,
-Blended Execution provides a versatile framework for defining state transitions in a wide range of applications.
+[//]: # (written in various programming languages originally built for different environments.)
 
-To create a Zero-Knowledge (ZK) proof, developers need to extract a trace to represent all these transitions.
-We use the rWASM (reduced-WebAssembly) language to define such trace transitions.
-Fluentbase framework is our development toolkit for creating WebAssembly applications.
+[//]: # (On Fluent, this concept is employed to create an IR for executable applications.)
 
-### rWASM
+[//]: # ()
+[//]: # (### Blended VM)
 
-rWASM is a binary Intermediate Representation (IR) designed for computations.
-It converts WebAssembly (WASM) into rWASM,
-where the majority of operations and segments are represented in a simplified and more zero-knowledge
-(ZK)-friendly format.
+[//]: # ()
+[//]: # (rWasm is a binary IR designed for computations.)
 
-rWASM is used to represent the execution trace of all operations within Fluent L2.
-To achieve this, we compile as much as possible into rWASM IR,
-ensuring that every operation can be consistently represented using the same trace language.
-Additionally, we develop rWASM zkVM circuits to verify all state transitions conclusively.
+[//]: # (Wasm is converted into rWasm,)
 
-You can read more about rWASM architecture and structure in the [corresponding section](./rwasm/index.md).
+[//]: # (where the majority of operations and segments are represented in a simplified and more zk-friendly format.)
 
-### Fluentbase
+[//]: # ()
+[//]: # (rWasm is used to represent the execution trace of all operations within Fluent.)
 
-Fluentbase is a comprehensive framework, or monorepo,
-equipped with essential tools for creating and running WebAssembly and rWASM-based applications.
-More broadly, Fluentbase serves as an SDK, providing crucial type mappings and bindings necessary for app development.
+[//]: # (To achieve this, as much as possible is compiled  into the rWasm IR,)
 
-You can read more about Fluentbase architecture and structure in the [corresponding section](./fluentbase/index.md).
+[//]: # (ensuring that every operation can be consistently represented using the same trace language.)
 
-### Blended VM
+[//]: # (Additionally, rWasm zkVM circuits verify all state transitions.)
 
-Blended VM is a concept that uses both Fluentbase Framework and rWASM technologies.
-rWASM is used as an execution runtime that takes rWASM binary as an input.
-Inside Fluentbase Runtime there is no such thing as state, it can operate with stateless operations only.
-For example, you can't access database objects directly.
-Instead,
-we provide an interruption system
-that can be used to interrupt program execution to request root-STF to provide missing state data.
+[//]: # ()
+[//]: # (The main approach to enable blended execution on Fluent is to use only one all encompassing  VM under the hood,)
 
-The main goal of **Blended VM** that always uses only one first-citizen language under the hood is rWASM.
-Having only one VM inside the state, transition makes proving much easier and faster.
-In this case, compatibility with other EE/VM(s)
-can be achieved though special AOT (Ahead-of-Time) compilers or simulation contracts.
+[//]: # (which is rWasm.)
 
-Developers can achieve execution environment (EE) compatibility
-(such as EVM or SVM) through specially designed rWASM-based system contracts.
-For instance, the EVM is implemented using a special EVM-proxy,
-which delegates the execution of EVM contracts to a dedicated system pre-compile that supports EVM opcodes.
+[//]: # (In contrast to multi-VM implementations,)
 
-This same goal can be achieved by creating an EVM deployer that translates EVM bytecode into an rWASM application.
-Similarly, by following this approach,
-developers can create their own EE contracts and support custom virtual machines (VMs)
-with complete execution environments by implementing a specialized RPC proxy mapper.
+[//]: # (having only one VM inside the state transition makes proving much faster and easier.)
 
-![Fluent Architecture](../images/rpc-ee.svg)
+[//]: # (In this case,)
 
-*The image illustrates how the RPC relayer maps user operations to match a specific execution environment*
+[//]: # (compatibility with other EEs/VMs on Fluent is achieved through special AOT)
 
-By using this approach,
-we can support different EE
-by implementing AOT compilers or just running EE simulation software that can be compiled down into WASM (rWASM).
+[//]: # (&#40;Ahead-of-Time&#41; compilers or simulation contracts.)
