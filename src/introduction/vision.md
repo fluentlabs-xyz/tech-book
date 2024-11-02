@@ -1,7 +1,7 @@
 # Vision
 
 While developing a zkVM for an EVM-compatible, Wasm based rollup on Ethereum, Fluent explored methods to optimize the proving process of smart contracts.
-A major challenge lies in the fact that using a zkVM to support multiple VMs only allows for the proof of the root STF, while the remaining nested execution of other VMs requires emulation.
+A major challenge lies in the fact that using a zkVM to support multiple VMs only allows for the proof of the root STF, while the remaining nested execution of other VMs requires emulation (expand this, add more details).
 
 To address this issue, Fluent proposes a VM capable of performing nested execution without incurring additional emulation overhead.
 This is achieved through a hardware acceleration process similar to the translation of smart contracts, applications, and precompiled contracts into a specialized low-level intermediary representation (IR) binary structure known as rWasm.
