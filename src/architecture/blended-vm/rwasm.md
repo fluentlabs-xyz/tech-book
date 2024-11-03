@@ -10,7 +10,11 @@ The flattened structure of rWasm simplifies the process of proving the correctne
 
 ## Technology
 
-rWasm is built on Wasmi's IR, originally developed by Parity Tech and now under Robin Freyler's ownership. Fluent implements the Wasmi VM because its IR is fully consistent with the original WebAssembly (Wasm), ensuring compatibility and stability. For rWasm, Fluent adheres to the same principles, making no changes to Wasmi's IR and only modifying the binary representation to enhance zero-knowledge-friendliness.
+rWasm is built on Wasmi's IR, originally developed by Parity Tech and now under Robin Freyler's ownership.
+Fluent implements the Wasmi VM because its IR is fully consistent with the original WebAssembly,
+ensuring compatibility and stability.
+For rWasm, Fluent adheres to the same principles,
+making no changes to Wasmi's IR and only modifying the binary representation to enhance ZK-friendliness.
 
 Key Differences between rWasm and Wasm:
 - **Deterministic Function Order**: Functions are ordered based on their position in the codebase.

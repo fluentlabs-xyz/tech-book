@@ -18,7 +18,7 @@ Fields description:
 - **`balance`**: Represents the account balance as a 256-bit element. This is consistently expressed as a 256-bit Big Endian value, although future changes may be considered.
 - **`nonce`**: Indicates the number of transactions initiated by this account. It increments with each transaction, call, or contract creation, regardless of the operation's success.
 - **`code_hash`**: A Poseidon hash representing the translated bytecode in rWASM format.
-- **`code_size`**: Denotes the size of the compiled bytecode in rWASM Intermediate Representation (IR) binary format. This bytecode has successfully passed all static validations and is optimized for Zero-Knowledge (ZK) proofs.
+- **`code_size`**: Denotes the size of the compiled bytecode in rWASM IR binary format. This bytecode has successfully passed all static validations and is optimized for ZK proofs.
 
 ## State Trie
 

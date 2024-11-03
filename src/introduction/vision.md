@@ -30,7 +30,7 @@ Key features:
 
 1. **Unified Execution Environment**: Support for multiple VMs and EEs through a single execution environment, enabling native composability between different smart contracts, tools, and languages.
 2. **rWasm Integration**: Full compatibility with standard Wasm and support for over 17+ traditional programming languages, allowing developers to use familiar tools such as Rust, C, Solidity, TinyGo, and AssemblyScript without sacrificing performance.
-3. **Optimized Proving Infrastructure**: Efficient proving through rWasm that drastically reduces overhead and complexity, providing optimal performance for zero-knowledge circuits.
+3. **Optimized Proving Infrastructure**: Efficient proving through rWasm that drastically reduces overhead and complexity, providing optimal performance for ZK circuits.
 4. **Seamless Expansion**: Advanced AOT/JIT compilers to integrate new VMs and EEs, ensuring extensibility for future-proofing and scalability.
 5. **Security and Extensibility**: BlendedVM unifies the execution space, providing enhanced security and preventing vulnerabilities that arise from managing multiple VMs while enabling new VMs to be added in trusted or trustless modes.
 

@@ -5,7 +5,7 @@ originally developed by [Parity Tech](https://github.com/wasmi-labs/wasmi) and n
 We chose the WASMi virtual machine because its IR is fully consistent with the original WebAssembly (WASM),
 ensuring compatibility and stability.
 For rWASM, we adhere to the same principles,
-making no changes to WASMi's IR and only modifying the binary representation to enhance zero-knowledge
+making no changes to WASMi's IR and only modifying the binary representation to enhance ZK
 (ZK) friendliness.
 
 ### Key Differences:

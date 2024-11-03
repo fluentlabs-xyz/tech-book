@@ -1,6 +1,14 @@
 # Interruptions
 
-Fluent interoperability relies heavily on its interruption system. Smart contracts on Fluent are limited to pure functions, preventing system calls from accessing external resources such as bytecodes, cold or invalidated storage slots, or performing nested calls. Including system calls imposes additional proving overhead, as proving gadgets must be developed for each call, complicating system development. This also impacts the flexibility in managing rights or extending contracts, making the system less sustainable for the fork-less concept. In such a scenario, system contracts cannot be upgraded without updating the circuits.
+Fluent interoperability relies heavily on its interruption system.
+Smart contracts on Fluent are limited to pure functions,
+preventing system calls from accessing external resources such as bytecodes, cold or invalidated storage slots,
+or performing nested calls.
+Including system calls imposes additional proving overhead,
+as proving gadgets must be developed for each call, complicating system development.
+This also impacts the flexibility in managing rights or extending contracts,
+making the system less sustainable for the fork-less concept.
+In such a scenario, system contracts cannot be upgraded without updating the circuits.
 
 Fluent solves this problem by enabling an interruption system that helps manage context switching between nested apps and the so-called STF that stands for context management.
 

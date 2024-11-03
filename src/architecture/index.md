@@ -5,7 +5,7 @@ Fluent exists as a unified state machine,
 where all contracts can call each other, regardless of which VM they were originally built for.
 
 As a rollup, Fluent supports scalable and efficient execution by committing state changes to Ethereum L1.
-This process involves compressing the state changes using zero-knowledge (zk) proofs, specifically SNARKs.
+This process involves compressing the state changes using ZK proofs, specifically SNARKs.
 
 <p align="center">
    <img src="../images/fluent-arch.svg" alt=""/>
