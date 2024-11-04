@@ -10,7 +10,8 @@ This also impacts the flexibility in managing rights or extending contracts,
 making the system less sustainable for the fork-less concept.
 In such a scenario, system contracts cannot be upgraded without updating the circuits.
 
-Fluent solves this problem by enabling an interruption system that helps manage context switching between nested apps and the so-called STF that stands for context management.
+Fluent solves this problem by enabling an interruption system that helps manage context switching between nested apps
+and the so-called STF that stands for context management.
 
 For simplicity, let's assume that STF, smart contracts and EEs are all functions
 (since they are essentially state transition functions or a part of STF).
@@ -26,13 +27,16 @@ The root function cannot be interrupted, but it is capable of handling interrupt
 ## System Bindings
 
 The system bindings manage context switching in a Fluent interruption system. The following functions are provided:
+
 1. `_exec(..)` - execute bytecode
 2. `_resume(..)` - resume interrupted state
 3. `_exit(..)` - exit contract
 
 ### Application Exit
 
-The application exit binding terminates function execution with the specified exit code. The function is designed to exit from any smart contract or application. It immediately halts the contract execution and forwards all execution results, including the exit code and return data, to the caller contract.
+The application exit binding terminates function execution with the specified exit code. The function is designed to
+exit from any smart contract or application. It immediately halts the contract execution and forwards all execution
+results, including the exit code and return data, to the caller contract.
 
 ```rust
 pub fn _exit(code: i32) -> !;
@@ -58,7 +62,9 @@ deactivate root-STF
 
 ### Execute Bytecode or Send Interruption
 
-This binding executes a nested call with the specified bytecode poseidon hash, or sends an interruption to the parent execution call though context switching. If the depth level is greater than 0 then an interruption occurs, otherwise, bytecode is executed.
+This binding executes a nested call with the specified bytecode poseidon hash, or sends an interruption to the parent
+execution call though context switching. If the depth level is greater than 0 then an interruption occurs, otherwise,
+bytecode is executed.
 
 **Parameters**:
 
@@ -146,9 +152,12 @@ requiring an execution loop capable of handling and correctly processing these i
 System calls use the same approach as an interruption system.
 Since root-STF function is responsible for all state transitions,
 including cold/warm storage reads,
-then a syscall can be represented as an interruption to the ephemeral smart contract. 
+then a syscall can be represented as an interruption to the ephemeral smart contract.
 
-For accessing state data, Fluent uses special ephemeral smart contracts to access information located outside a smart contract. For example, in case of storage cache invalidation, the contract must request the newest info from the root call instead of reading invalidated cache. Also, nested calls to other contracts require ACL checks that must be checked and verified by the root-STF.
+For accessing state data, Fluent uses special ephemeral smart contracts to access information located outside a smart
+contract. For example, in case of storage cache invalidation, the contract must request the newest info from the root
+call instead of reading invalidated cache. Also, nested calls to other contracts require ACL checks that must be checked
+and verified by the root-STF.
 
 Here is an example of what the system call looks like for Rust contracts.
 
