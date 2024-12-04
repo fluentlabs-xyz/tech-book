@@ -1,4 +1,26 @@
-# ABI Encoding
+# ABI
+
+In the realm of EVM applications,
+the Solidity ABI has become the predominant encoding format,
+effectively establishing itself as a primary standard for on-chain interactions today.
+This encoding and decoding schema,
+primarily driven by the Solidity language, is widely used across Ethereum and other EVM-compatible platforms.
+
+However, in the Web2 domain,
+developers opt for ABI encoding/decoding schemes that best fit their specific needs and tasks.
+Notably, Ethereum includes several system precompiles that do not conform to a Solidity-compatible ABI schema.
+
+Blended VM Fluent distinguishes itself by supporting a variety of execution environments, such as EVM and Solana's VM,
+using distinct ABI schemes tailored to each environment.
+In Solana, for instance, there isn't a standardized ABI format,
+granting developers the flexibility to choose any format that suits their requirements.
+
+This flexibility is a hallmark of Fluent, as it does not mandate a single encoding/decoding standard for applications.
+Instead, it empowers developers to select the most suitable option.
+The Fluentbase SDK accommodates this by implementing the necessary ABI encoding/decoding standards,
+allowing developers to freely use any ABI format they prefer.
+
+## Fluentbase Codec
 
 Fluent employs a custom codec for ABI encoding/decoding tailored to various ABIs.
 This Codec includes compatibility modes such as Solidity ABI,
@@ -13,7 +35,7 @@ The Codec leverages a header/body encoding mode:
 - **Header**: Contains all static information.
 - **Body**: Contains all dynamic information.
 
-Key Features
+Key Features:
 - **No-std Compatible**: Operates in environments without the standard library.
 - **Configurable Byte Order and Alignment**: Allows customization according to requirements.
 - **Solidity ABI Compatibility Mode**: Seamlessly integrates with Solidity ABI.
@@ -24,8 +46,26 @@ Key Features
 ## Encoding Modes
 
 The library supports two primary encoding modes:
-- **FluentABI**: Utilized for internal cross-system calls, benefiting from 4-byte stack alignment for efficiency without compromising the developer experience.
 - **SolidityABI**: Applied for external cross-contract calls to handle input parameters and decode outputs effectively.
+- **FluentABI**: Utilized for internal cross-system calls, benefiting from 4-byte stack alignment for efficiency without compromising the developer experience.
+
+### SolidityABI Mode
+
+Parameters:
+- Big-endian byte order
+- 32-byte alignment (Solidity compatible)
+- Dynamic structure encoding:
+  - Header
+    - offset (u256) - a position in the structure
+  - Body
+    - length (u256) - a number of elements
+    - recursively encoded elements
+
+Usage example:
+```rust
+use fluentbase_codec::SolidityABI;
+SolidityABI::encode(&value, &mut buf, 0)
+```
 
 ### FluentABI Mode
 
@@ -44,24 +84,6 @@ Usage example:
 ```rust
 use fluentbase_codec::FluentABI;
 FluentABI::encode(&value, &mut buf, 0)
-```
-
-### SolidityABI Mode
-
-Parameters:
-- Big-endian byte order
-- 32-byte alignment (Solidity compatible)
-- Dynamic structure encoding:
-  - Header
-    - offset (u256) - a position in the structure
-  - Body
-    - length (u256) - a number of elements
-    - recursively encoded elements
-
-Usage example:
-```rust
-use fluentbase_codec::SolidityABI;
-SolidityABI::encode(&value, &mut buf, 0)
 ```
 
 ## Type System
