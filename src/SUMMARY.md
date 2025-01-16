@@ -14,6 +14,7 @@
     - [EVM](architecture/blended-vm/evm.md)
     - [WebAssembly](architecture/blended-vm/wasm.md)
     - [Solana](architecture/blended-vm/solana.md)
+    - [Precompiled Contracts](architecture/blended-vm/precompiled-contracts.md)
     - [System Calls](architecture/blended-vm/system-calls.md)
   - [ABI](architecture/abi-format.md)
   - [Account Trie](architecture/account-trie.md)
