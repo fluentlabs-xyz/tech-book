@@ -1,4 +1,4 @@
-# Vision
+# Our Vision
 
 While developing a zkVM for an EVM-compatible, Wasm based rollup on Ethereum, Fluent explored methods to optimize the
 proving process of smart contracts.
@@ -18,20 +18,18 @@ diverse smart contracts, revolutionizing the landscape of efficient zk-Wasm base
 
 With blended execution on Fluent, developers can create applications using languages and tools from various VMs yet
 coexisting in the same execution space.
-This is possible because all smart contracts share the same execution environment.
+This is possible because all smart contracts share the same account space.
 As a result, native composability is achieved for anything within Fluent that can be represented as rWasm (which relies
 on Wasm and LLVM, making 17+ languages available for development).
 
-Different VMs can be supported using an AOT translation process (efficient but time-consuming) or an emulation process (
-very fast integration but with additional overhead).
+Different VMs can be supported using an AOT translation process (directly into Rwasm) or an emulation process.
 Fluent can enable execution environments like the EVM, bringing Solidity and Vyper support.
 Similarly, the new language Sway from Fuel can be integrated by running an FVM execution precompile.
-Entire EEs can be seamlessly integrated and accommodated in various modes, offering either Isolated EE (complete
-compatibility with the original EE where interoperability is achieved using deposit/withdrawal process) or Blended EE (
-improved native composability with other VMs on Fluent).
 
 Both users and developers obtain major benefits from blended execution because it enhances the experience of developers
 who are ready to expand the Fluent ecosystem by bringing more development languages and execution environments on board.
+Additionally, it bridges the gap between Web2 and Web3 users by providing a shared set of tools and new ways to interact
+with applications through account abstraction backed by EIP-7702 and modules such as OAuth 2.0 and WebAuthn.
 
 ## Product Vision
 
@@ -50,11 +48,10 @@ Key features:
    sacrificing performance.
 3. **Optimized Proving Infrastructure**: Efficient proving through rWasm that drastically reduces overhead and
    complexity, providing optimal performance for ZK circuits.
-4. **Seamless Expansion**: Advanced AOT compilers to integrate new VMs and EEs, ensuring extensibility for
+4. **Seamless Expansion**: Advanced JIT/AOT compilers to integrate new VMs and EEs, ensuring extensibility for
    future-proofing and scalability.
 5. **Security and Extensibility**: BlendedVM unifies the execution space, providing enhanced security and preventing
-   vulnerabilities that arise from managing multiple VMs while enabling new VMs to be added in trusted or trustless
-   modes.
+   vulnerabilities that arise from managing multiple VMs while enabling new VMs to be added.
 
 The Fluent Blended Execution Layer empowers developers to build diverse applications without managing disparate systems,
 optimizing their experience and fostering rapid growth in the Ethereum ecosystem.
@@ -76,8 +73,8 @@ essence, blended execution acts as a state verification function responsible for
 Fluent execution layer.
 
 Given that rWasm serves as the IR language for Fluent, it has the potential to represent not only Wasm or EVM but also
-other VMs and EEs. This is facilitated by providing dedicated AOT compilers for these platforms or in some cases
-utilizing emulation software.
+other VMs and EEs. This is facilitated by providing dedicated compilation or emulation software for these platforms or
+in some cases utilizing emulation software.
 
 rWasm is a derivative of the Wasm assembly language that keeps 100% backward compatibility with original Wasm standards.
 Leveraging the extensive adoption and support of Wasm, rWasm enables blockchain developers to effortlessly create new

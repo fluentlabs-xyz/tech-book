@@ -22,12 +22,6 @@ Fields description:
 
 ## State Trie
 
-The trie structure uses SMBT (Sparse Merkle Binary Trie),
-a fork of ZkTrie originally developed
-and maintained by [Scroll](https://docs.scroll.io/en/technology/sequencer/zktrie/).
-
-*Note: Considering replacing the trie hashing function with a more efficient alternative.*
-
 Fluent operates with state tries through a pure functional approach,
 where every smart contract and root-STF can be represented as a function.
 In this model, the input provides a list of dependencies,
@@ -39,18 +33,3 @@ To address this, Fluent employs an interruption system to "request" missing info
 This is particularly useful for operations involving cold storage or invalidated warm storage.
 
 The same concept is also used to handle nested calls without incurring additional simulation overhead.
-
-## Account Destruction Problem
-
-The Ethereum Virtual Machine (EVM)
-utilizes dirty storage and journals to roll back changes and revert to previous states.
-One of the main challenges is handling the `SELFDESTRUCT` opcode, which is responsible for account destruction.
-
-Account destruction can introduce several edge cases.
-When an account is destructed, all state changes, including storage modifications,
-must be reverted, irrespective of the destruction stage.
-
-In the post-CANCUN era, Fluent has no need to remove existing storage tries.
-Account destruction in Fluent can be accomplished
-by sending a special interruption message into the root-STF with a specified command.
-Since Fluent-STF is a pure function, it can implement account destruction through journal reversion.  

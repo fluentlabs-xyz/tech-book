@@ -17,12 +17,6 @@ option for integrating Web2 developers into the Web3 ecosystem.
 
 ## Technology
 
-rWasm is built on Wasmi's IR, originally developed by Parity Tech and now under Robin Freyler's ownership.
-Fluent implements the Wasmi VM because its IR is fully consistent with the original WebAssembly,
-ensuring compatibility and stability.
-For rWasm, Fluent adheres to the same principles,
-making no changes to Wasmi's IR and only modifying the binary representation to enhance ZK-friendliness.
-
 Key Differences between rWasm and Wasm:
 
 - **Deterministic Function Order**: Functions are ordered based on their position in the codebase.
@@ -34,7 +28,7 @@ Key Differences between rWasm and Wasm:
 - **Eliminated Type Mapping**: Type mapping is no longer necessary as the code is fully validated.
 - **Special Entrypoint Function**: A unique entry point function encompasses all segments.
 
-The new binary representation ensures a fully equivalently compatible Wasmi runtime module from the binary.
+The new binary representation ensures a fully equivalently compatible Wasm runtime module from the binary.
 Some features are no longer supported by the rWasm runtime: module imports; global variables; memory imports;
 global variables export.
 These features are unnecessary as Fluent does not utilize them.
