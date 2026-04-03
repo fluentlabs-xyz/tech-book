@@ -1,182 +1,94 @@
 # Technology
 
-rWASM is built on WASMi's intermediate representation (IR),
-originally developed by [Parity Tech](https://github.com/wasmi-labs/wasmi) and now under Robin Freyler's ownership.
-We chose the WASMi virtual machine because its IR is fully consistent with the original WebAssembly (WASM),
-ensuring compatibility and stability.
-For rWASM, we adhere to the same principles,
-making no changes to WASMi's IR and only modifying the binary representation to enhance ZK
-(ZK) friendliness.
+This chapter summarizes the current rWASM technology model as implemented in `fluentlabs-xyz/rwasm`.
 
-### Key Differences:
+## High-level pipeline
 
-1. **Deterministic Function Order**: Functions are ordered based on their position in the codebase.
-2. **Block/Loop Replacement**: Blocks and loops are replaced with Br-family instructions.
-3. **Redesigned Break Instructions**: Break instructions now support program counter (PC) offsets instead of depth-level.
-4. **Simplified Binary Verification**: Most sections are removed to streamline binary verification.
-5. **Unified Memory Segment Section**: Implements all WASM memory standards in one place.
-6. **Removed Global Variables Section**: Global variables section is eliminated.
-7. **Eliminated Type Mapping**: Type mapping is no longer necessary as the code is fully validated.
-8. **Special Entrypoint Function**: A unique entry point function encompasses all segments.
+rWASM uses a clear execution pipeline:
 
-The new binary representation ensures a fully equivalently compatible WASMi runtime module from the binary.
-Some features are no longer supported but are not required by the rWASM runtime:
+1. **Input Wasm module**
+2. **Parser + validator**
+3. **rWASM translator/compiler**
+4. **Compact rWASM module artifact**
+5. **Execution strategy** (native rWASM VM, plus optional compatibility strategy)
 
-- Module imports, global variables, and memory imports
-- Global variables exports
+## Core subsystems
 
-## Structure
+### Compiler / translator
 
-The rWASM binary format supports the following sections:
+The compiler layer parses and validates Wasm, then rewrites execution into the rWASM-oriented opcode stream and metadata layout.
 
-1. **Bytecode Section**: Replaces the function/code/entrypoint sections.
-2. **Memory Section**: Replaces memory/data sections for all active/passive/declare section types.
-3. **Function Section**: A temporary solution for the code section, planned for removal.
-4. **Element Section**: Replaces the table/elem sections, also planned for removal.
+### Module model
 
-### Bytecode Section
+rWASM modules are serialized as explicit runtime artifacts consumed by the VM.
+Current format includes a fixed header/magic + ordered sections (code/data/element/hints and source metadata).
 
-This section consolidates WASM's original function, code, and start sections.
-It contains all instructions for the entire binary without any additional separators for functions.
-Functions are recovered from the bytecode by reading the function section, which contains function lengths.
-We inject the entrypoint function at the end, which is used to initialize all segments according to WASM constraints.
+### Opcode model
 
-> **Note**: We plan to remove the function section and store the entrypoint at offset 0. To achieve this, we need to eliminate stack calls and implement indirect breaks. Although we have an implementation for this, it is not yet satisfactory, and we plan to migrate to a register-based IR before finalizing it.
+The opcode surface is explicitly defined and version-sensitive.
 
-### Memory Section
+Important operational rule:
+- opcode ordering and module encoding are wire-compatibility concerns,
+- changing them is a format-level change, not a cosmetic refactor.
 
-In WASM, memory and data sections are handled separately.
-In rWASM, the Memory section defines memory bounds (lower and upper limits), and data sections,
-which can be either active or passive, specify data to be mapped inside the memory.
-Unlike WASM, rWASM eliminates the separate memory section,
-modifies the corresponding instruction logic, and merges all data sections.
+### Runtime VM
 
-Here's an example of a WAT file that initializes memory with minimum and maximum memory bounds
-(default allocated memory is one page, and the maximum possible allocated pages are two):
+The native VM is a stack-machine executor with:
 
-```wat
-(module
-  (memory 1 2)
-)
-```
+- value/call stack transitions,
+- memory/table/global handling,
+- trap model,
+- host import linkage,
+- resumable context hooks.
 
-To support this, we inject the `memory.grow` instruction into the entrypoint to initialize the default memory.
-We also add a special preamble to all `memory.grow` instructions to perform upper bound checks.
+### Strategy abstraction
 
-Here is an example of the resulting entrypoint injection:
+rWASM supports a strategy layer so native execution and compatibility/comparison backends can be selected by feature/runtime setup.
 
-```wat
-(module
-  (func $__entrypoint
-    i32.const $_init_pages
-    memory.init
-    drop)
-)
-```
+## Fuel and metering
 
-According to WASM standards, a memory overflow causes `u32::MAX` to be placed on the stack.
-For upper-bound checks, we can use the `memory.size` opcode.
-Here is an example of such an injection:
+Fuel is a first-class runtime primitive:
 
-```wat
-(module
-  (func $_func_uses_memory_grow
-    (block
-      local.get 1
-      memory.size
-      i32.add
-      i32.const $_max_pages
-      i32.gts
-      drop
-      i32.const 4294967295
-      br 0
-      memory.grow)
-  )
-)
-```
+- bounded mode: deterministic out-of-fuel traps,
+- unbounded mode: for controlled/testing contexts,
+- reset/remaining behavior exposed by runtime store interfaces.
 
-These injections fully comply with WASM standards,
-allowing us to support official WASM memory constraint checks for the memory section.
+Fuel is consumed by both instruction paths and host-mediated operations depending on integration policy.
 
-For the data section, the process is more complex because we need to support three different data section types:
+## Tracing and observability
 
-- **Active**: Has a pre-defined compile-time offset.
-- **Passive**: Can be initialized dynamically at runtime.
+With tracing enabled, runtime emits instruction/memory/table-oriented execution traces for debugging and analysis.
 
-To address this, we merge all sections.
-If the memory is active, we initialize it inside the entrypoint with re-mapped offsets.
-Otherwise,
-we remember the offset in a special mapping to adjust passive segments when the user calls `memory.init` manually.
+This is useful for:
 
-Here is an example of an entrypoint injection for an active data segment:
+- differential checks,
+- profiling,
+- proving/debug instrumentation.
 
-```wat
-(module
-  (func $__entrypoint
-    i32.const $_relative_offset
-    i64.const $_data_offset
-    i64.const $_data_length // or u64::MAX in case of overflow
-    memory.init 0
-    data.drop $segment_index+1
-  )
-)
-```
+## Feature-gated runtime surface
 
-We need to drop the data segment finally.
-According to WASM standards, once the segment is initialized, it must be entirely removed from memory.
-To simulate this behavior,
-we use zero segments as a default and store special data segment flags to know which segments are still active.
+rWASM behavior depends on enabled features (`std`, `wasmtime`, `fpu`, `tracing`, etc.).
+Feature combinations are part of the effective runtime surface and should be pinned in production builds.
 
-For passive data segments, the logic is similar, but we must recalculate data segment offsets on the fly.
+## Security posture (architecture level)
 
-```wat
-(module
-  (func $_func_uses_memory_init
-    // adjust length
-    (block
-      local.get 1
-      local.get 3
-      i32.add
-      i32.const $_data_len
-      i32.gts
-      br_if_eqz 0
-      i32.const 4294967295 // an error
-      local.set 1
-    )
-    // adjust offset
-    i32.const $_data_offset
-    local.get 3
-    i32.add
-    local.set 2
-    // do init
-    memory.init $_segment_index+1
-  )
-)
-```
+Current rWASM docs emphasize:
 
-The provided injections are examples and may vary based on specific requirements.
+- validation-first execution,
+- fail-safe traps and bounds checks,
+- host boundary determinism requirements,
+- DoS controls via size/fuel/resource policies.
 
-### Function Sections (Temporary)
+In practice, VM determinism and host determinism are both required.
+A deterministic VM with nondeterministic host imports is still nondeterministic at system level.
 
-The function section is a temporary measure used to store information about function lengths.
-This section will be removed once we move the entrypoint function to the beginning of the module.
+## Implementation references
 
-Currently, removing functions requires significant refactoring and modifications to our codebase, including:
+For exact, current behavior see:
 
-1. Replacing all functions with breaks (e.g., `br` instructions).
-2. Removing stack calls and using indirect breaks or tables.
-
-We plan to migrate to a register-based VM in the future.
-
-### Element Section (Temporary)
-
-The element section uses the same translation logic as the memory/data sections
-but operates with tables and elements instead of memory and data.
-
-This section is also temporary and will eventually be replaced with memory operations.
-Doing so can reduce the number of read/write operations and the size of our circuits.
-The main challenge is managing memory securely to avoid mixing system and user memory spaces.
-We aim to support original WASM binaries, regardless of how they are compiled,
-without resorting to a custom WASM compilation target.
-
-This approach is still under research.
+- `rwasm/docs/architecture.md`
+- `rwasm/docs/pipeline.md`
+- `rwasm/docs/module-format.md`
+- `rwasm/docs/vm-and-fuel.md`
+- `rwasm/docs/opcodes.md`
+- `rwasm/docs/security-considerations.md`

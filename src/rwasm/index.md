@@ -1,17 +1,56 @@
 # rWASM
 
-rWASM (reduced WebAssembly) is a Wasm-derived intermediary representation (IR) used by Fluent’s blended execution architecture.
+rWASM (reduced WebAssembly) is Fluent’s deterministic Wasm-derived execution representation and runtime stack.
 
-It is designed to simplify and constrain execution representation for deterministic runtime behavior and proving efficiency,
-while keeping practical compatibility with WebAssembly development flows.
+It is designed for environments that care about:
 
-## Key Features
+- predictable execution behavior,
+- explicit metering controls,
+- proving-friendly structure.
 
-- **ZK-friendliness**: a flatter and more constrained binary model than unrestricted Wasm module structure.
-- **Developer continuity**: keeps a Wasm-oriented workflow, so existing language/tooling ecosystems remain practical.
-- **Deterministic execution intent**: representation choices are made to support reproducible state-transition behavior.
+## What rWASM is (and is not)
 
-## Important Notice
+rWASM is **not** just a documentation alias for plain WebAssembly binaries.
+It is a constrained execution model with:
 
-rWASM is a protocol execution representation, not a generic drop-in replacement for every host Wasm use case.
-Always use current Fluent runtime/translator tooling and validation paths when producing or executing rWASM artifacts.
+- translation from Wasm inputs,
+- a compact module format,
+- a dedicated opcode/runtime model,
+- host import/syscall integration boundaries.
+
+At the same time, it keeps a Wasm-oriented developer path so existing tooling ecosystems remain practical.
+
+## Current source of truth
+
+For implementation-level details, use `fluentlabs-xyz/rwasm` docs first:
+
+- architecture,
+- pipeline,
+- module format,
+- VM/fuel behavior,
+- opcode specification,
+- security considerations.
+
+This tech-book chapter summarizes architecture intent.
+
+## Key architecture properties
+
+1. **Deterministic execution model**
+   - runtime semantics are designed for reproducible transitions.
+
+2. **Compact module representation**
+   - rWASM module encoding is structured for predictable runtime consumption.
+
+3. **Host boundary clarity**
+   - imports/syscalls are explicit integration points, not implicit ambient powers.
+
+4. **Fuel-aware execution**
+   - metering is a first-class runtime concern.
+
+5. **Strategy abstraction**
+   - native rWASM VM path and optional compatibility/backtesting strategy paths can coexist.
+
+## Reading map
+
+- [Motivation](motivation.md): why Fluent uses a reduced Wasm representation.
+- [Technology](technology.md): architecture-level mechanics (pipeline, module format, VM/fuel, feature gates).
