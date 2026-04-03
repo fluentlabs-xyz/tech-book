@@ -6,7 +6,6 @@
   - [Blended Execution](introduction/blended-execution.md)
 
 - [Architecture](architecture/index.md)
-  - [Implementation Alignment Notes](architecture/implementation-alignment.md)
   - [Execution Environment](architecture/execution-environment/index.md)
     - [Account Ownership](architecture/execution-environment/account-ownership.md)
     - [Composability](architecture/execution-environment/composability.md)
@@ -16,7 +15,6 @@
     - [EVM](architecture/blended-vm/evm.md)
     - [WebAssembly](architecture/blended-vm/wasm.md)
     - [Solana](architecture/blended-vm/solana.md)
-    - [Native Precompiled Contracts](architecture/blended-vm/precompiled-contracts.md)
     - [System Calls](architecture/blended-vm/system-calls.md)
   - [ABI](architecture/abi-format.md)
   - [Account Trie](architecture/account-trie.md)
